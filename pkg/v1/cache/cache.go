@@ -105,7 +105,16 @@ func (l *lazyLayer) Compressed() (io.ReadCloser, error) {
 }
 
 func (l *lazyLayer) Uncompressed() (io.ReadCloser, error) {
-	diffID, err := l.inner.DiffID()
+	mediaType, err := l.MediaType()
+	if err != nil {
+		return nil, err
+	}
+	var diffID v1.Hash
+	if mediaType == "application/wasm" {
+		diffID, err = l.inner.Digest()
+	} else {
+		diffID, err = l.inner.DiffID()
+	}
 	if err != nil {
 		return nil, err
 	}

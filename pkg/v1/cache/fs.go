@@ -40,9 +40,18 @@ func (fs *fscache) Put(l v1.Layer) (v1.Layer, error) {
 	if err != nil {
 		return nil, err
 	}
-	diffID, err := l.DiffID()
+	mediaType, err := l.MediaType()
 	if err != nil {
 		return nil, err
+	}
+	var diffID v1.Hash
+	if mediaType == "application/wasm" {
+		diffID = digest
+	} else {
+		diffID, err = l.DiffID()
+		if err != nil {
+			return nil, err
+		}
 	}
 	return &layer{
 		Layer:  l,
